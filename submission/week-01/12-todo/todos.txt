@@ -1,1 +1,3 @@
-1|Study DevOps|done
+1|buy milk|pending
+2|write code|done
+3|sleep|pending

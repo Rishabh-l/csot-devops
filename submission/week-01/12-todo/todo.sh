@@ -10,7 +10,13 @@ case "$1" in
         echo "Added task $id: $2"
         ;;
     list)
-        cat "$TODOS"
+        while IFS='|' read -r id desc status; do
+            if [ "$status" = "done" ]; then
+                echo "$id: [x] $desc"
+            else
+                echo "$id: [ ] $desc"
+            fi
+        done < "$TODOS"
         ;;
     done)
         sed -i "s/^$2|.*|pending/$2|$(grep "^$2|" "$TODOS" | cut -d'|' -f2)|done/" "$TODOS"
