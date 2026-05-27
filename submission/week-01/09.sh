@@ -1,20 +1,43 @@
 #!/usr/bin/env bash
-openssl req -x509 -newkey rsa:2048 \
-    -keyout /tmp/key.pem \
-    -out /tmp/cert.pem \
-    -days 365 -nodes \
-    -subj "/CN=localhost"
+set -euo pipefail
 
-cat > /tmp/nginx-ssl.conf << 'NGINX'
-server {
-    listen 8443 ssl;
-    ssl_certificate /tmp/cert.pem;
-    ssl_certificate_key /tmp/key.pem;
+CERT_DIR="/tmp/csot-tls"
+CERT="$CERT_DIR/server.crt"
+KEY="$CERT_DIR/server.key"
+CONF="$CERT_DIR/nginx.conf"
 
-    location / {
-        return 200 "HTTPS works!\n";
+mkdir -p "$CERT_DIR"
+
+# Generate self-signed cert
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout "$KEY" \
+    -out "$CERT" \
+    -subj "/CN=localhost" 2>/dev/null
+
+# Write nginx config
+cat > "$CONF" <<NGINX
+events {
+    worker_connections 64;
+}
+http {
+    server {
+        listen 8443 ssl;
+        server_name localhost;
+
+        ssl_certificate     $CERT;
+        ssl_certificate_key $KEY;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+
+        location / {
+            return 200 "Hello from HTTPS\\n";
+            add_header Content-Type text/plain always;
+        }
     }
 }
 NGINX
 
-echo "Certificate and nginx config created successfully"
+# Start nginx with our config
+nginx -c "$CONF"
+
+exit 0

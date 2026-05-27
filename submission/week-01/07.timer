@@ -1,9 +1,11 @@
 [Unit]
-Description=Hello World Timer
+Description=Fire Hello World every minute
 
 [Timer]
-OnBootSec=1min
-OnUnitActiveSec=1min
+Unit=07.service
+OnCalendar=*-*-* *:*:00
+AccuracySec=1s
+Persistent=true
 
 [Install]
 WantedBy=timers.target

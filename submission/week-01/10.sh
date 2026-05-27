@@ -1,2 +1,6 @@
 #!/usr/bin/env bash
-du --max-depth=1 "$1" | sort -rn | head -10
+set -euo pipefail
+
+[ -z "${1:-}" ] && { echo "Usage: $0 <dir>" >&2; exit 1; }
+
+du -k "$1" 2>/dev/null | sort -rn | head -10

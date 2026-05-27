@@ -1,32 +1,29 @@
 #!/usr/bin/env bash
-TODOS="$(dirname "$0")/todos.txt"
-touch "$TODOS"
+set -euo pipefail
 
-case "$1" in
+TODO_FILE="${TODO_FILE:-$HOME/.todo}"
+touch "$TODO_FILE"
+
+case "${1:-list}" in
     add)
-        id=$(wc -l < "$TODOS")
-        id=$((id + 1))
-        echo "$id|$2|pending" >> "$TODOS"
-        echo "Added task $id: $2"
+        shift
+        echo "[ ] $*" >> "$TODO_FILE"
         ;;
     list)
-        while IFS='|' read -r id desc status; do
-            if [ "$status" = "done" ]; then
-                echo "$id: [x] $desc"
-            else
-                echo "$id: [ ] $desc"
-            fi
-        done < "$TODOS"
+        if [ -s "$TODO_FILE" ]; then
+            awk '{ printf "%d: %s\n", NR, $0 }' "$TODO_FILE"
+        fi
         ;;
     done)
-        sed -i "s/^$2|\(.*\)|pending$/$2|\1|done/" "$TODOS"
-        echo "Task $2 marked as done"
+        n="$2"
+        sed -i "${n}s/^\[ \]/[x]/" "$TODO_FILE"
         ;;
-    delete)
-        sed -i "/^$2|/d" "$TODOS"
-        echo "Task $2 deleted"
+    remove)
+        n="$2"
+        sed -i "${n}d" "$TODO_FILE"
         ;;
     *)
-        echo "Usage: $0 {add|list|done|delete}"
+        echo "Usage: $0 {add|list|done|remove} [args]" >&2
+        exit 2
         ;;
 esac
