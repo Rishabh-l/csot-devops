@@ -19,7 +19,7 @@ case "$1" in
         done < "$TODOS"
         ;;
     done)
-        sed -i "s/^$2|.*|pending/$2|$(grep "^$2|" "$TODOS" | cut -d'|' -f2)|done/" "$TODOS"
+        sed -i "s/^$2|\(.*\)|pending$/$2|\1|done/" "$TODOS"
         echo "Task $2 marked as done"
         ;;
     delete)

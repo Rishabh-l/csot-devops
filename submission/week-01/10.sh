@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-du -h --max-depth=1 "$1" | sort -rh | head -10
+du --max-depth=1 "$1" | sort -rn | head -10

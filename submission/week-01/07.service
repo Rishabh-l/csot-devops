@@ -4,3 +4,6 @@ Description=Hello World Service
 [Service]
 Type=oneshot
 ExecStart=/bin/echo "Hello World"
+
+[Install]
+WantedBy=multi-user.target
